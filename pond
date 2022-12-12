@@ -1,0 +1,327 @@
+project ** Family
+
+package int101w14;
+
+public class Person {
+    private final int id;
+    private final String name;
+    private static int nextId = 0;
+
+    public Person(int id, String name) {
+        this.id = (int) (Math.random()*10);
+        this.name = name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Person{" + "id=" + id + ", name=" + name + '}';
+    }
+    
+}
+
+................................................................................................................
+
+package int101w14;
+
+public class Family {
+    private String father;
+    private String mother;
+    private int children[];
+
+    public Family(String father, String mother, int[] children) {
+        this.father = father;
+        this.mother = mother;
+        this.children = children;
+    }
+    
+    public static boolean addChild(Person p){
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "Family{" + "father=" + father + ", mother=" + mother + ", children=" + children + '}';
+    }
+    
+    
+}
+
+---------------------------------------------------------------------------------------------------------------------
+
+
+101Array 
+
+package int101.array;
+
+public class Student {
+    public static boolean[] allIds = new boolean[10];
+    int id;
+    String name;
+
+    public Student(String name) {
+        this.name = name;
+        id = (int) (Math.random()*10);
+        if (allIds[id]) {
+            while (allIds[id]) {
+                this.id = (int) (Math.random() * 10);
+            }
+        }else {
+            allIds[id] = true;
+        }
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" + "id=" + id + ", name=" + name + '}';
+    }
+    
+    
+}
+...........................................................................
+
+package int101.test;
+import int101.array.Student;
+
+public class StudentTest {
+    public static void main(String[] args) {
+        student();
+    }
+    public static void student(){
+        Student[] students = new Student[10];
+        
+        System.out.println(students);
+        
+        
+    }
+}
+
+----------------------------------------------------------------------------
+
+ข้อสอบทำเอง 
+
+package exam;
+
+import java.util.Objects;
+
+public class Person {
+
+    //1
+    private final int code;
+    private String firstName;
+    private String lastName;
+    private final int type;
+    private static int nextcode = 007;
+    private final int defaultType = 1;
+
+    //1.1
+    public Person(String firstName, String lastName, int type) {
+        this.code = nextcode++;
+        this.firstName = firstName != null || !firstName.isBlank() ? firstName : "Jakathorn";
+        this.lastName = lastName != null || !lastName.isBlank() ? lastName : "Sorvises";
+        this.type = type < 0 ? type : defaultType;
+    }
+
+    //1.2
+    public Person(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.type = defaultType;
+        this.code = nextcode;
+    }
+    
+    //1.3
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public int getType() {
+        return type;
+    }
+    
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName != null && !firstName.isBlank() ? firstName : "Jakathorn";
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName != null && !lastName.isBlank() ? lastName : "Sorvises";
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[Person: %d (%s %s) %d]", code, firstName, lastName, type);
+    }
+
+    @Override
+    public int hashCode() {
+        return code;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Person other = (Person) obj;
+        if (this.type != other.type) {
+            return false;
+        }
+        if (!Objects.equals(this.firstName, other.firstName)) {
+            return false;
+        }
+        return Objects.equals(this.lastName, other.lastName);
+    }
+    
+}
+..........................................................................................
+
+package exam;
+
+import exam.Person;
+import java.util.Arrays;
+
+public class Department {
+
+    private final int code;
+    private final String title;
+    private Person[] staff;
+    private int count;
+    private static int nextCode = 400;
+    private static final int[] emthy = new int[0];
+
+    public Department(String title) {
+        this.title = title != null && !title.isBlank() ? title : "MWS";
+        code = nextCode++;
+        staff = new Person[29];
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public boolean addStaff(String firstname, String lastname, int type) {
+        staff[count++] = new Person(firstname, lastname, type);
+        return true;
+    }
+
+    public int getTypeCount(int type) {
+        int result = 0;
+        for (int i = 0; i < count; i++) {
+            if (staff[i].getType() == type) {
+                result++;
+            }
+        }
+        return result;
+    }
+
+    public int[] getAllCodes() {
+        if (count == 0) {
+            return emthy;
+        }
+        var result = new int[count];
+        for (int i = 0; i < count; i++) {
+            result[i] = staff[i].getCode();
+        }
+        return result;
+    }
+
+    public Person getStaff(int code) {
+        for (int i = 0; i < count; i++) {
+            if (staff[i].getCode() == code) {
+                return staff[i];
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%d (%s) %d", code, title, count);
+    }
+
+    public int[] getAllTypes() {
+        if (count == 0) {
+            return emthy;
+        }
+        var temp = new int[count];
+        for (int i = 0; i < count; i++) {
+            temp[i] = staff.getType();
+        }
+        Arrays.sort(temp);
+        int size = 0;
+        for (int i = 0; i < count; i++) {
+            if (temp[size] != temp[i]) {
+                temp[size++] = temp[i];
+            }
+        }
+        return Arrays.copyOfRange(temp, 0, size++);
+    }
+
+}
+
+.................................................................................
+import exam.Department;
+import exam.Person;
+import java.util.Arrays;
+
+public class ProjectDriver {
+    public static void main(String[] args) {
+        testPerson();
+    }
+    
+    public static void testPerson(){
+        // Constructor: Person(firstname, lastname, type)
+        System.out.println(new Person("","Lastname", 2));
+        
+        // Constructor: Person (firstname, lastname)
+        System.out.println(new Person("first","last"));
+        
+        // Getters: getCode(), getFirstname(), getLastname(), getType()
+        var p = new Person("Gname", "Fname", 5);
+        System.out.println(p);
+        System.out.println("p.getCode(): " + p.getCode());
+        System.out.println("p.getType(): " + p.getType());
+        
+        
+    }
+}
+
+--------------------------------------------------------------------------------------
