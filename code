@@ -55,3 +55,28 @@ public class Student {
     }
 
 }
+
+------------------------------------------------------------------------------------------
+
+package int101.test;
+
+import int101.array.Student;
+
+public class StudentTest {
+    public static void main(String[] args) {
+        testStudent();
+    }
+    
+    public static void testStudent() {
+        final int size = 11;
+        Student[] students = new Student[size]; // ประกาศใช้ตัวแปร
+        for (int i = 0; i < size; i++) {
+            students[i] = new Student("No."+i); 
+            System.out.println(students[i]);
+    }
+        
+//    for (Student student : students) {
+//            System.out.println(student);
+    }
+
+}  
