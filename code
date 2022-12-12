@@ -1,0 +1,57 @@
+package int101.array; //เฉลยวีคที่ 12
+
+//import java.util.Random;
+public class Student {
+
+    private static final int SIZE = 10; // ตัวใหญ่เพราะเป็น constants
+    private static boolean[] allIds = new boolean[SIZE]; // array
+    private static boolean full;
+    private int id;
+    private String name;
+
+    public Student(String name) { //contructor - เรียกแล้ว New ไม่ใช่ method - เรียกแล้วเรียกชื่อ
+        //allIds = new boolean[SIZE];
+        // ถ้าสร้าง Student ใหม่ array ก็สร้างใหม่ เลยไม่ใช้ เพราะควรสร้างแค่ครั้งเดียว
+        this.name = name;
+        this.id = findUniqueId(); // สุ่ม id หา id ที่ไม่ซ้ำ
+    }
+
+    // separation of concerns เป็นการแยกงานออกเป็นส่วน ๆ
+    private int findUniqueId() {
+        int id;
+        if (full) {
+            return -1;
+        }
+        for (int i = 0; i < SIZE; i++) {
+            if (!allIds[i]) {
+                do { // ใช้ do while เพราะจะ สุ่มก่อน แล้วค่อยเช็ค ไม่ซ้ำแล้วออก loop
+
+                    id = (int) (Math.random() * SIZE); // ค่าอยู่ระหว่าง 0-9
+
+                    //id = (new Random()) .nextInt(10);
+                } while (allIds[id]); // เป็น เท็จ ออกจาก loop
+                allIds[id] = true; // เป็นจริงอยู่ เพื่อบอกว่า id ใช้แล้ว
+                return id;
+            }
+        }
+
+        full = true;
+        return SIZE;
+    }
+    
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+
+    public String toString() {
+        return "Student{" + "id=" + id + ", name=" + name + '}';
+    }
+
+}
