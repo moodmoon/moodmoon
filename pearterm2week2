@@ -1,0 +1,121 @@
+## Week 2
+
+========= geo 1 ==========
+
+# Shape.java
+
+package geometry;
+
+public abstract class Shape {
+    
+    public abstract double getPerimeter();
+        
+    public abstract double getArea();
+
+}
+
+-----------------------------------------
+
+# Square.java
+
+package geometry;
+
+public class Square extends Shape {
+    private double side;
+    
+    public Square(double side) {
+        this.side = side;
+    }
+
+    public double getSide() {
+        return side;
+    }
+
+    @Override
+    public double getPerimeter() {
+        return 4.0 * side;
+    }
+    
+    @Override
+    public double getArea() {
+        return side * side;
+    }
+      
+}
+
+-----------------------------------------
+
+# ThickShape.java
+
+package geometry;
+
+public abstract class ThickShape extends Shape {
+    
+    protected double thickness;
+    
+    public abstract double getVolumn();
+}
+
+-----------------------------------------
+
+# ThickCircle.java
+
+package geo;
+
+import geometry.*;
+
+public class ThickCircle extends ThickShape {
+    
+    private final double radius;
+
+    public ThickCircle(double radius, double thickness) {
+        this.radius = radius;
+        this.thickness = thickness;
+    }
+    
+    @Override
+    public double getPerimeter() {
+        return 2 * Math.PI * radius ;
+    }
+    
+    @Override
+    public double getArea() {
+        return Math.PI * radius * radius;
+    }
+
+    @Override
+    public double getVolumn() {
+        return this.getArea() * this.thickness;
+    }
+    
+}
+
+-----------------------------------------
+
+# GeoTest.java
+
+import geometry.*;
+
+public class GeoTest {
+    
+    public static void main(String[] args) {
+        testShape();
+        testSquare();
+}
+    
+    static void testShape(){
+        //Shape s = new Shape();
+        Shape s = new Square(4.0); //abstract มี obj ไม่ได้ ใช้ new ไม่ได้นะจ๊ะน้องแพร
+        System.out.println("Shape Perimeter: " + s.getPerimeter());
+        System.out.println("Shape Area: " + s.getArea());
+    }
+    
+    static void testSquare(){
+        Shape s = new Square(5.0);
+        System.out.println("Square Perimeter: " + s.getPerimeter());
+        System.out.println("Square Area: " + s.getArea());
+    }
+    
+}
+
+-----------------------------------------
