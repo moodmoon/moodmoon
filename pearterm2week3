@@ -1,0 +1,180 @@
+## Week 3
+
+=============================
+
+# Containable.java
+
+package containment;
+
+//public interface Containable {
+
+import java.util.Comparator;
+
+    
+public interface Containable<T> {
+    
+    public boolean add(T t);
+    public T get(T t);
+    public void sort(Comparator<T> c);
+    
+    //public boolean add(Object o);
+    //public Object get(Object o);
+    
+}
+
+---------------------------------------------
+
+# Container.java
+
+package containment;
+
+import java.util.Arrays;
+
+import java.util.Comparator;
+
+public class Container<T> implements Containable<T>  /* , Traversable<T> */  {
+    
+    private static final int SIZE = 3;
+    private T[] box = (T[])new Object[SIZE];
+    private int count = 0;
+    
+    //public Container() {
+    //    box = new Object[SIZE];
+    //    count = 0;
+    //}
+    
+    public void sort(Comparator<T> c) {
+        if (count < 2) return;
+        Arrays.sort(box, 0, count);
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Container[\n");
+        
+        for (int i = 0; i < count; i++) {
+            sb.append(" ");
+            sb.append(box[i].toString());
+            sb.append("\n");
+        }
+       
+        sb.append("]");
+        return sb.toString();
+    }
+    
+    
+    @Override
+    public boolean add(T t){
+        if (t == null || count == SIZE) return false;
+        box[count++] = t;
+        //count = count + 1;
+        //count++;
+        return true;
+    }
+
+    @Override
+    public T get(T t) {
+        if (t == null) return null;
+        for (int i = 0; i < count; i++) {
+            //if (box[i] == o) return true;
+            if (box[i].equals(t)) return box[i];
+        }
+        return null;
+    }
+    
+    
+}
+
+---------------------------------------------
+
+# Person.java
+package Human;
+
+import java.util.Comparator;
+
+public class Person implements Comparable<Person> {
+    
+    private final int id;
+    private final String name;
+    
+    public Person(int id ,String name) {
+        this.id = id;
+        this.name = name;
+    }
+    
+    public int compareTo(Person p) { //เอา Person มาเทียบกัน
+        return (this.name).compareTo(p.name); // เปรียบเทียบชื่อ
+        //return (p.name).compareTo(this.name);
+        //return this.id - p.id;
+    }
+    
+    public static Comparator<Person> getReverseNameComparator() {
+        return new Comparator<Person>() {
+            public int compare(Person p1, Person p2) {
+                return p2.name.compareTo(p1.name);
+            }
+        };
+    }
+    
+    @Override 
+    public boolean equals(Object o) {
+        if (null == null || this.getClass() != o.getClass()) return false;
+        return this == o || this.name.equals(((Person) o).name);
+    }
+    
+    @Override
+    public String toString() {
+        return "Person(" + id + ":" + name + ")";
+    }
+    
+}
+
+
+---------------------------------------------
+
+# TEST
+
+package pearint103w03m;
+
+import Human.Person;
+
+import containment.*;
+
+public class pearint103w03m {
+
+    public static void main(String[] args) {
+        testContainable();
+        //testTraversable();
+    }
+    
+    static void testContainable() {
+        Containable<Person> c = new Container<Person>();
+        System.out.println("add 9: " + c.add(new Person(9, "Nine")));
+        System.out.println("add null: " + c.add(null));
+        System.out.println("add 7: " + c.add(new Person(7, "Seven")));
+        System.out.println("add 5: " + c.add(new Person(5, "Five")));
+        System.out.println("add 1: " + c.add(new Person(1, "One")));
+        System.out.println("get Nine: " + c.get(new Person(0, "Nine")));
+        System.out.println("get null: " + c.get(null));
+        System.out.println("get One: " + c.get(new Person(1, "One")));
+        System.out.println("get Seven: " + c.get(new Person(0,"Seven")));
+        //System.out.println(c);
+        //System.out.println("Before softing: " + c);
+        //c.sort();
+        //c.sort(Person.getReverseNameComparator());
+        //((Container) c).sort();
+        //System.out.println("After softing: " + c);
+        System.out.println("Before sorting: " + c.toString());
+        c.sort(null);
+        System.out.println("After sorting:" + c);
+        c.sort(Person.getReverseNameComparator());
+        System.out.println("After sorting with Comparator:" + c);
+    }
+    
+    //static void testTraversable() {
+    //    Traversable<Person> t = new Container<Person>();
+    //    System.out.println();
+    //}
+
+}
