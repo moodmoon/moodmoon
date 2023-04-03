@@ -1,0 +1,329 @@
+## Week 4
+
+=============================
+
+# Person.java
+
+package human;
+
+//import containment.Condition;
+import java.util.Comparator;
+import utility.Util;
+
+public class Person implements Comparable<Person> { // implements พิสูจน์ว่า Person เรียงลำดับได้ ต้องมี method Compareto
+    private static final String BLANK = "BLANK"; // constant
+    private static int nextId;
+    private final int id;
+    private final String firstname;
+    private final String lastname;
+    //public static final Comparator<Person> FIRSTNAME_COMAPARATOR = new FirstnameComparator();
+    //public static final Comparator<Person> LASTNAME_COMAPARATOR = new LastnameComparator();
+
+//    public Condition<Person> matchFirstname() {
+//        return new Condition<Person>() {
+//            public boolean test(Person p) {
+//                return p != null || firstname.equals(p.firstname);
+//            }
+//        };
+//    }
+    
+    private static class FirstnameComparator implements Comparator<Person> { //nested class
+ 
+        @Override
+        public int compare(Person o1, Person o2) {
+    //        if (o1 == null) return 1; // null = o1 มาทีหลัง o2
+    //            return o1.compareTo(o2);
+    //        if (o1.firstname == null) return 1;   
+              if (o1 == null || o1.firstname == null) return 1; 
+              if (o2 == null || o2.firstname == null) return -1; 
+              return o1.firstname.compareTo(o2.firstname);
+        }
+
+        public static final Comparator<Person> FIRSTNAME_COMPARATOR = new FirstnameComparator(); // สร้าง obj เก็บไว้เป็น static field
+        
+//        public static Comparator<Person> getFirstnameComparator() {
+//            return firstnameComparator;
+//        }
+    }
+    
+    private static class LastnameComparator implements Comparator<Person> { //nested class
+ 
+        @Override
+        public int compare(Person o1, Person o2) {
+              if (o1 == null || o1.lastname == null) return 1; 
+              if (o2 == null || o2.lastname == null) return -1; 
+              return o1.lastname.compareTo(o2.lastname);
+        }
+
+        public static final Comparator<Person> LASTNAME_COMPARATOR = new LastnameComparator();
+    
+    }
+   
+    public Person(String firstname, String lastname) {
+        this.firstname = Util.isValid(firstname) ? firstname : BLANK;
+        this.lastname = Util.isValid(lastname) ? lastname : BLANK;
+        this.id = nextId++;
+    }
+    
+    @Override
+    public int compareTo(Person p) {
+        return this.id - p.id;
+    }
+    
+    /* public static Person newPerson(String firstname, String lastname) {
+        if (Util.isValid(firstname) && Util.isValid(lastname))
+            return newPerson(firstname, lastname) ;
+        return null; 
+    } */
+    
+    // method ที่พิมพ์ Person ออกมาเป็น String
+    @Override 
+    public String toString() {
+        return String.format("Person{%d,%s,%s}", id, firstname, lastname);
+    }
+    
+    @Override 
+    public boolean equals(Object o) {
+        //if (this == o) return true;
+        if (o == null || o.getClass() != this.getClass()) return false; // ถ้า o กับ this ไม่ได้อยู่ class เดียวกัน จะ return false 
+       //if (o == null || o.getClass() != Person.class()) return false; -- หมายถึง class Person เลย
+        return this == o || this.id == ((Person) o).id;
+       // Person จะ equals กัน ก็ต่อเมื่อ id เหมือนกัน เลยเทียบ id
+       
+    }
+    
+    //@Override public int compareTo(Person o) { return this.id - o.id; }
+    // เปรียบเทียบ id ในการเรียงลำดับ เหมือนกัน ลำดับเดียวกัน น้อยกว่าก็มาก่อน
+}
+
+---------------------------------------------
+
+# Container.java
+
+package containment;
+
+import java.util.Arrays;
+import java.util.Comparator;
+//import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+//import java.util.NoSuchElementException;
+
+// เก็บของประเภทเดียวกันใช้ <> (Genaric)
+
+public class Container<T> implements Iterable<T> {
+    private static final int SIZE = 5;
+    private T[] box = (T[]) new Object[SIZE];
+    private int count;
+    private int modcount;
+   
+//    public Iterator<T> Iterator() { //การทำซ้ำ - ค้นหาข้อมูล
+//        return new Iterator() {
+//            private int cur;
+//            private final int modCount = Container.this.modCount;
+//            
+//            @Override 
+//            public boolean hasNext() { 
+//                if (modCount != Container.this.modCount) throw new ConcurrentModificationException();
+//                return cur != count; 
+//            }
+//            
+//            @Override 
+//            public T next() { 
+//                if (modCount != Container.this.modCount) throw new ConcurrentModificationException();
+//                if (cur >= count) throw new NoSuchElementException();
+//                return box[cur++]; 
+//            }
+//        };
+//    }
+    
+    public boolean add(T t) {
+        if (t == null || count == SIZE) return false;
+        box[count++] = t;
+        modcount++;
+        return true;
+    }
+    
+    public T find(T t) { // ค้นหา
+        if (t == null) return null;
+        for (int i = 0; i < count; i++) {
+            if(box[i].equals(t)) return box[i];
+        }
+        
+        return null;
+        //int i = locate(t);
+        //return i == -1 ? null : box[i];
+    }  
+    
+    public T find(Condition<T> c) {
+        if (c == null) return null;
+        for (int i = 0; i < count; i++) {
+            if(c.test(box[i])) return box[i];
+        }
+        
+        return null;
+    }
+    
+    public T delete(T t) { //ข้อมูลเจอเหมือน ให้ลบออกไป
+        if (t == null) return null;
+        for (int i = 0; i < count; i++) {
+            if (box[i].equals(t)) {
+                T x = box[i];
+                box[i] = box[--count];
+                box[count] = null;
+                modcount++;
+                return x;
+            }
+        }
+        return null;
+    }
+    
+    @Override 
+    public String toString() { // พิมพ์ข้อมูลใน Container ออกมาให้หมด
+        var sb = new StringBuilder();
+        sb.append("Container[");
+        for (int i = 0; i < count; i++) {
+            sb.append("\n  ").append(box[i]);
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+    
+    public void sort() {
+        Arrays.sort(box, 0, count);
+        modcount++;
+    }
+    
+    public void sort(Comparator<T> c) {
+        Arrays.sort(box, 0, count, c);
+    }
+    
+    
+    public Iterator<T> Iterator() { // non nested class = inner class
+        return new Iterator() { // anonymous class
+            //private class ContainerIterator implements Iterator<T> { //inner class
+            private int cursor;
+            private final int modcount = Container.this.modcount;
+
+            @Override 
+            public boolean hasNext() { 
+                if (modcount != Container.this.modcount) throw new RuntimeException();
+                return cursor < count; 
+            }
+            @Override 
+            public T next() { 
+                if (modcount != Container.this.modcount) throw new RuntimeException();
+                return box[cursor++]; 
+            }
+        };
+        
+    }
+            
+}
+    
+//    
+//        public Container sort(Comparator<T> comp) { 
+//        if (count >= 2) {
+//            Arrays.sort(box,0,count, comp);
+//            modCount++;
+//        }
+//        return this;
+//    }
+    
+//        
+//        int i = locate(t);
+//        if (i == -1) return null;
+//        T x = box[i];
+//        box[i] = box[--count];
+//        box[count] = null;
+//        modCount++;
+//        return x;
+//    }
+//        
+//    private int locate(T t) {
+//        if (t == null) return -1;
+//        for (int i = 0; i < count; i++) {
+//            if (box[i].equals(t)) return i;
+//        }
+//        return -1;
+//    }
+//    
+//    public Container sort() {
+//        if (count < 2) return this;
+//        Arrays.sort(box,0,count);
+//        modCount++;
+//        return this;
+//    }
+
+---------------------------------------------
+
+# Int103w04t.java
+
+package int103w04t;
+
+import containment.Container;
+import human.Person;
+
+public class Int103w04t {
+
+    public static void main(String[] args) {
+        testContainer();
+    }
+    
+    static void testContainer() {
+        var p0 = new Person("First","Last");
+        var p1 = new Person("Second","Final");
+        var p2 = new Person("Third","End");
+        var p3 = new Person("Forth","Terminal");
+        var c = new Container<Person>();
+        System.out.println("Add p2: " + c.add(p2));
+        System.out.println("Add null: " + c.add(null));
+        System.out.println("Add p1: " + c.add(p1));
+        System.out.println("Add p3: " + c.add(p3));
+        System.out.println("Add p0: " + c.add(p0));
+        System.out.println("Listing: " + c.toString());
+        //c.sort(Person.FIRSTNAME_COMPARATOR);
+        System.out.println("Sorting: " + c.toString());
+        
+//        Person ps = new Person("Second",null);
+//        System.out.println("*** Find " + ps + " : " + c.find(ps.matchFirstname());
+        
+//        var it = c.iterator();
+//        while (it.hasNext()) {
+//            var p = it.next();
+//            System.out.println("P: " +p);
+//        }
+        
+        var it2 = c.Iterator();
+        System.out.println(it2.next());
+        System.out.println(it2.next());
+        c.sort();
+        it2.hasNext();
+        
+        //System.out.println("Sorting by Firstname: " + c.sort(Person.FIRSTNAME_COMAPARATOR).toString());
+       
+//        var it = c.iterator();
+//        var i2 = c.iterator();
+//        System.out.println("it 0: " + it.hasNext() + " : " + it.next());
+//        System.out.println("it 1: " + it.hasNext() + " : " + it.next());
+//        while (i2.hasNext()) {
+//            System.out.println("Iterator 2: " + i2.next());
+//        }
+//        System.out.println("it 2: " + it.hasNext() + " : " + it.next());
+//        System.out.println("it 3: " + it.hasNext() + " : " + it.next());
+//        System.out.println("it 4: " + it.hasNext());
+        
+    }
+}
+
+---------------------------------------------
+
+# Condition.java
+
+package containment;
+
+@FunctionalInterface
+public interface Condition<T> {
+    public boolean test(T t);
+}
+
+---------------------------------------------
