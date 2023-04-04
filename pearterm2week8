@@ -1,0 +1,103 @@
+============= AbstractCollection ===============
+
+package collection;
+
+import java.util.AbstractCollection;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class ImCollection<E> extends AbstractCollection<E> {
+
+    private final E[] array; // unmodifiable collection
+
+    public ImCollection(E[] array) { this.array = Arrays.copyOf(array, array.length); }
+    @Override public int size() { return array.length; }
+   
+    @Override
+    public Iterator<E> iterator() {
+        return new Iterator() {
+            private int cursor;
+
+            @Override public boolean hasNext() { return cursor < array.length; }
+
+            @Override public Object next() { 
+                if (cursor < array.length) return array[cursor++];
+                throw new NoSuchElementException();
+            }
+        };
+    }
+}
+
+============= Test ===============
+
+package int103w08t;
+
+import collection.ImCollection;
+import java.util.List;
+
+/**
+ *
+ * @author Student
+ */
+public class Int103w08t {
+
+    public static void main(String[] args) {
+        //testCollection();
+        testList(); 
+    }
+    
+    static void testList() {
+        List<String> ll = new LinkedList<>();
+        List<String> al = new ArrayList<>();
+        ll.add("One");
+        al.add("One");
+        ll.add(0,"Two");
+        al.add(0,"Two");
+        ll.add(4,"X");
+    }
+    
+    static void testCollection() {
+        var c = new ImCollection<String>(new String[] {"One","Two","Three","Four"});
+        System.out.println("contains Two: " + c.contains("Two"));
+        System.out.println("contains One and Four: " + c.containsAll(List.of("Four","One")));
+        System.out.println("contains Two and Five: " + c.containsAll(List.of("Two","Five")));
+
+        var a = c.toArray();
+        System.out.print("c.toArray():");
+        for (Object o : a) System.out.print(" " + ((String) o).charAt(0));
+        System.out.println();
+
+        var s = c.toArray(new String[0]);
+        System.out.print("c.toArray(String[]):");
+        for (String str : s) System.out.print(" " + str.charAt(1));
+        System.out.println();
+        
+        var f = c.toArray(String[]::new);
+        System.out.print("c.toArray(IntFunction<String>):");
+        for (String str : s) System.out.print(" " + str.charAt(2));
+        System.out.println();
+        
+        // external iterator
+        System.out.print("Iterator:");
+        for (String string : c) {
+            if (string.contains("e")) System.out.print(" " + string);
+        }
+        System.out.println();
+        
+        // internal iterator
+        System.out.print("Stream:");
+        c.stream()
+                .filter(str->str.contains("e"))
+                .peek(ss -> System.out.print(ss + "(" + Thread.currentThread().getId() + ")"))
+                .map(String::length)
+                .parallel()
+                //.forEachOrdered(st->System.out.print(" " + st))
+                .forEach(sx->System.out.print(" " + sx + "(" + Thread.currentThread().getId() + ")"));
+        System.out.println();
+        
+        
+    }
+}
+
+------------------------------------------------
