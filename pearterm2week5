@@ -1,0 +1,317 @@
+## Week 5
+
+============================
+
+# Util.java
+
+package tools;
+public class Util {
+    
+    private Util() { }
+    public static final String BLANK = "_";
+    public static final boolean isValid(String s) { return s != null && ! s.isBlank(); }
+    public static final boolean isInvalid(String s) { return s == null || s.isBlank(); }
+    
+}
+
+---------------------------------------
+
+# Person.java
+
+package human;
+
+import collection.Condition;
+import java.util.Comparator;
+import java.util.Objects;
+import tools.Util;
+
+public class Person implements Comparable<Person> {
+    private static int nextId;
+    private final int id;
+    private final Gender sex;
+    protected String firstname;
+    protected String lastname;
+    
+    public static final Comparator firstnameComparator = new FirstnameComparator();
+    public static final Comparator lastnameComparator = new LastnameComparator();
+    
+    private static class FirstnameComparator implements Comparator<Person> {
+        @Override // เปรียบเทียบชื่อคน
+        public int compare(Person p0, Person p1) {
+            return p0.firstname.compareTo(p1.firstname);
+        }
+    }
+    
+    private static class LastnameComparator implements Comparator<Person> {
+        @Override // เปรียบเทียบนามสกุลคน
+        public int compare(Person p0, Person p1) {
+            return p0.lastname.compareTo(p1.lastname);
+        }
+    }
+    
+    public Person(Gender sex, String firstname, String lastname) {
+        this.sex = Objects.requireNonNull(sex, "Person's gender cannot be null.");
+        this.firstname = Util.isValid(firstname) ? firstname : Util.BLANK;
+        this.lastname = Util.isValid(lastname) ? lastname : Util.BLANK;
+        this.id = nextId++;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s[id:%d,sex:%s,name:%s,%s]",
+                this.getClass().getSimpleName(),id,sex,firstname,lastname);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o;
+        /*
+        if (this == o) return true;
+        if (o == null || this.getClass() != o.getClass()) return false;
+        final var p = (Person) o; // แปลง o ให้เป็น Person
+        return this.id == p.id && this.firstname.equals(p.firstname) && this.lastname.equals(p.lastname);
+        */
+    }
+        
+    @Override 
+    public int compareTo(Person p) { // เปรียบเทียบ id
+        return this.id - p.id;
+    }
+    
+    public Condition<Person> findByLastname() {
+        return new Condition<Person>() { // anonymous class
+            @Override 
+            public boolean test(Person p) {
+                return Person.this.lastname.equals(p.lastname);
+            }
+        };
+        
+}
+    
+        public Condition<Person> findByFirstname() {
+            return (Person p) -> Person.this.firstname.equals(p.firstname); //lambda  
+        
+        }
+    
+}
+
+---------------------------------------
+
+# Student.java
+
+package school;
+
+import human.*;
+import java.util.Objects;
+
+public class Student extends Person {
+    
+    private Level level;
+    
+    public Level getLevel() { return level; }
+    public void setLevel(Level level) { this.level = level; }
+    
+    public Student(Gender g, String firstname, String lastname, Level level) {
+        super(g, firstname,lastname);
+        this.level = Objects.requireNonNull(level, "Student's level cannot be null");
+    }
+    
+    @Override 
+    public String toString() {
+        return super.toString() + "[level:" + level + "]";
+    }
+    
+    
+}
+
+---------------------------------------
+
+# Gender.java
+
+package human;
+
+public enum Gender { MALE , FEMALE }
+
+---------------------------------------
+
+# Level.java
+
+package school;
+
+public enum Level {
+    FRESHMAN(1,"Entry"),
+    SOPHOMORE(2,"Two"),
+    JUNIOR(3,"Three"),
+    SENIOR(4,"Final");
+    
+    private final int levelValue;
+    private final String levelName;
+    
+    Level(int levelValue, String levelName) { 
+        this.levelValue = levelValue;
+        this.levelName = levelName;
+    }
+    
+    public int getValue() { return levelValue; }
+    public String getName() { return levelName; }
+    
+}
+
+---------------------------------------
+
+# Condition.java
+
+package collection;
+
+@FunctionalInterface // มีได้แค่ 1 ฟังก์ชัน
+public interface Condition<T> {
+    public boolean test(T t);
+}
+
+---------------------------------------
+
+# Group.java
+
+package collection;
+
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class Group<T> {
+    
+    private final int SIZE = 5;
+    private T[] box = (T[]) new Object[SIZE];
+    private int count;
+    
+    public boolean add(T t) {
+        if (t == null || locate(t) > -1) return false;
+        box[count++] = t;
+        return true;
+    }
+    
+    public T find(T t) {
+        int i = locate(t);
+        return i == -1 ? null : box[i];
+    }
+    
+    private int locate(T t) {
+        if(t == null) return -1;
+        for (int i = 0; i < count; i++) {
+            if(box[i].equals(t)) return i;
+        }
+        return -1;
+    }
+    
+    public T find(Condition<T> cond) {
+        if (cond == null) return null;
+        for (int i = 0; i < count; i++) {
+            if (cond.test(box[i])) return box[i];
+        }
+        return null;
+    }
+    
+    public Group sort() { // เรียงลำดับข้อมูล
+        if(count < 2) return this;
+        Arrays.sort(box, 0, count);
+        return this;
+    } 
+    
+    public Group sort(Comparator<T> c) {
+        if(count < 2) return this;
+        Arrays.sort(box, 0, count, c);
+        return this; 
+    }
+    
+    @Override 
+    public String toString() {
+        var b = new StringBuilder();
+        b.append("Group{");
+        for (int i = 0; i < count; i++) {
+            b.append("\n  ").append(box[i]);
+        }
+        b.append("}");
+        return b.toString();
+    }
+    
+}
+
+---------------------------------------
+
+# Pearint103w05m.java
+
+package pearint103w05m;
+
+import collection.*;
+import human.*;
+import school.*;
+
+public class Pearint103w05m {
+
+    public static void main(String[] args) {
+        //testPersonAndStudent();
+        //testGroup();
+        testCondition();
+    }
+    
+    static void testCondition() {
+        var g = new Group<Person>();
+        var p0 = new Person(Gender.MALE, "Teerachai", "Ratana");
+        var p1 = new Student(Gender.FEMALE, "Somying", "Mak", Level.FRESHMAN);
+        var p2 = new Student(Gender.MALE, "Somsak", "Lee", Level.SENIOR);
+        var p3 = new Student(Gender.FEMALE, "Somsri", "Siri", Level.SOPHOMORE);
+        var p4 = new Student(Gender.FEMALE, "Somrri", "Lee", Level.JUNIOR);
+        g.add(p1);
+        g.add(p3);
+        g.add(p0);
+        g.add(p2);
+        System.out.println("Listing: " + g);
+        System.out.println("Find p1: " + g.find(p1));
+        System.out.println("Find Lastname Lee: " + g.find(p4.findByLastname()));
+        System.out.println("Find Firstname Somsri : " + g.find(p4.findByFirstname()));
+    }
+    
+    static void testGroup() {
+        var g = new Group<Person>();
+        var p0 = new Person(Gender.MALE, "Teerachai", "Ratana");
+        var p1 = new Student(Gender.FEMALE, "Somying", "Mak", Level.FRESHMAN);
+        var p2 = new Student(Gender.MALE, "Somsak", "Lee", Level.SENIOR);
+        var p3 = new Student(Gender.FEMALE, "Somsri", "Siri", Level.SOPHOMORE);
+        g.add(p1);
+        g.add(p3);
+        g.add(p0);
+        g.add(p2);
+        System.out.println("Listing: " + g);
+        System.out.println("Sorting: " + g.sort());
+        System.out.println("Sorting by lastname: " + g.sort(Person.lastnameComparator));
+    }
+    
+    static void testPersonAndStudent() {
+        var p0 = new Person(Gender.MALE, "Somchai", "Dee");
+        var p1 = new Student(Gender.FEMALE, "Somying", "Mall", Level.FRESHMAN);
+        System.out.println("p0: " + p0);
+        System.out.println("p1: " + p1);
+        System.out.println("p1:level = " + p1.getLevel());
+        p1.setLevel(Level.SOPHOMORE);
+        System.out.println("p1: " + p1);
+        System.out.println("p1.level value: " + p1.getLevel().getValue());
+        
+            for (Level level : Level.values()) { // enum list level ทั้งหมด
+            System.out.println("Level: " + level + " [" + level.getValue() + "," + level.getName() + "]");
+        }
+            
+            switch (p1.getLevel()) { // enum ที่เป็น level
+//                case FRESHMAN : System.out.println("Year One"); break;
+//                case SOPHOMORE : System.out.println("Year Two"); break;
+//                case JUNIOR : System.out.println("Year Three"); break;
+//                case SENIOR : System.out.println("Year Four"); break;
+                case FRESHMAN -> System.out.println("Year One"); 
+                case SOPHOMORE -> System.out.println("Year Two");
+                case JUNIOR -> System.out.println("Year Three");
+                case SENIOR -> System.out.println("Year Four");
+        }
+        // colon case vs arrow case
+    }
+    
+}
+
+---------------------------------------
