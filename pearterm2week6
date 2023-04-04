@@ -1,0 +1,245 @@
+## Week 6
+===========================
+
+# Util.java
+
+package tools;
+
+public final class Util {
+    private Util() { }
+    public static final String BLANK = "_";
+    public static final boolean isValid(String s) { return s != null && ! s.isBlank(); }
+    public static final boolean isInvalid(String s) { return s == null || s.isBlank(); }
+}
+
+-----------------------------------
+
+# Pearson.java
+
+package human;
+
+import java.util.Comparator;
+import tools.Util;
+
+public class Person implements Comparable<Person> {
+    private static int nextId;
+    private final int id;
+    protected String firstname;
+    protected String lastname;
+
+    public Person(String firstname, String lastname) {
+        this.firstname = Util.isValid(firstname) ? firstname : Util.BLANK;
+        this.lastname = Util.isValid(lastname) ? lastname : Util.BLANK;
+        this.id = nextId++;
+    }
+    @Override
+    public String toString() {
+        return String.format("%s[id:%d,name:%s,%s]",
+                this.getClass().getSimpleName(),id,firstname,lastname);
+    }
+    @Override public boolean equals(Object o) { return this == o; }
+    @Override public int compareTo(Person p) { return this.id - p.id; }
+    public int getId() { return id; }
+    public String getFirstname() { return firstname; }
+    public String getLastname() { return lastname; }
+    public void setFirstname(String firstname) { this.firstname = firstname; }
+    public void setLastname(String lastname) { this.lastname = lastname; }
+
+    public static final Comparator<Person> BY_FIRSTNAME = (p0, p1) -> p0.firstname.compareTo(p1.firstname);
+    public static final Comparator<Person> BY_LASTNAME = (p0, p1) -> p0.lastname.compareTo(p1.lastname);
+}
+
+-----------------------------------
+
+# Group.java
+
+package collection;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.function.Predicate;
+
+public class Group<T> implements Iterable<T> { // type parameter
+    private static final int SIZE = 5; 
+    private static final int NOTFOUND = -1;
+    private T[] box = (T[]) new Object[SIZE];
+    private int count;
+    private int modcount;
+    
+    public boolean add(T t) {
+        if (t == null || locate(t) != NOTFOUND) return false;
+        box[count++] = t;
+        return true;
+    }
+    
+    public T find(T t) {
+        int i = locate(t);
+        return i == NOTFOUND ? null : box[i];
+    }
+    
+    public T find(Predicate<T> p) {
+        if (p == null) return null;
+        for (int i = 0; i < count; i++) {
+            if (p.test(box[i])) return box[i];
+        }
+        return null;
+    }
+    
+    private int locate(T t) {
+        if (t == null) return NOTFOUND;
+        for (int i = 0; i < count; i++) {
+            if (box[i].equals(t)) return i;
+        }
+        return NOTFOUND;
+    }
+        
+    public Group sort() {
+        return this.sort((Comparator<T>) Comparator.naturalOrder());
+    }
+    
+    public Group sort(Comparator<T> c) {
+        if (count < 2) return this;
+        Arrays.sort(box, 0, count, c);
+        modcount++;
+        return this;
+    }
+    
+    @Override 
+    public String toString() {
+        var b = new StringBuilder();
+        b.append("Group{");
+        for (int i = 0; i < count; i++) {
+            b.append("\n  ").append(box[i]);
+        }
+        b.append("}");
+        return b.toString();
+    }
+    
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            private int cursor;
+            private final int itModcount = modcount;
+            @Override
+            public boolean hasNext() { 
+                failFast();
+                return cursor != count; 
+            }
+            @Override
+            public T next() { 
+                failFast();
+                if (cursor > count) throw new NoSuchElementException();
+                return box[cursor++]; 
+            }
+            private void failFast() {
+                if (itModcount != modcount) throw new ConcurrentModificationException();
+            }
+        };
+    }
+}
+
+-----------------------------------
+
+# Int103w06t.java
+
+package int103w06t;
+
+import collection.Group;
+import human.Person;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.function.Predicate;
+
+public class Int103w06t {
+
+    public static void main(String[] args) {
+        //testPerson();
+        //testGroup();
+        testAssignment();
+    }
+    static void testAssignment() {
+        var p0 = new Person("Kavin","Smith");
+        var p1 = new Person("Albert","Dole");
+        var p2 = new Person("Kavin","Johnson");
+        var p3 = new Person("Albert","Johnson");
+        var p4 = new Person("Steve","Smith");
+        var g = new Group<Person>();
+        g.add(p4); g.add(p2); g.add(p3); g.add(p0); g.add(p1);
+        System.out.println("Group: " + g);
+        
+        //1. sort g by reverse lastname , then reverse id
+        System.out.println("Sorted G: " + g.sort (
+                Comparator.comparing(Person::getLastname).reversed()
+                //Person.BY_LASTNAME.reversed()
+                        .thenComparing (
+                                Comparator.comparingInt(Person::getId).reversed())));
+        
+        //2. find a person whose id % 3 == 2
+        System.out.println("Find Person whose id % 3 == 2: " + g.find(p -> p.getId() % 3 == 2));
+        
+        //3. find a person whose firstname contains e and lastname does not contain o
+        Predicate<Person> fne = p -> p.getFirstname().contains("e");
+        Predicate<Person> Ino = p -> p.getLastname().contains("o");
+        System.out.println("Find Person whose FN+e and LN-o: " 
+                + g.find(fne.and(Ino.negate())));
+                //+ g.find(p -> p.getFirstname().contains("e")));
+                        //.and(p -> p.getLastname().contains("o")).negate());
+        
+    }
+    static void testPerson() {
+        var p0 = new Person("First","One");
+        var p1 = new Person("Second","One");
+        var p2 = new Person("Fifth", "One");
+        var p3 = new Person("Forth", "Four");
+                
+        System.out.println("p0: " + p0);
+        System.out.println("p1: " + p1);
+        System.out.println("p0.CompareTo(p1): " + p0.compareTo(p1));
+        var ps = new Person[] {p0, new Person("Third","One"), p2, p1, p3};
+        for (Person p : ps) System.out.println("ps: " + p);
+
+        Arrays.sort(ps);
+        for (Person p : ps) System.out.println("sorted ps: " + p);
+        
+        Arrays.sort(ps,Comparator.reverseOrder());
+        for (Person p : ps) System.out.println("sorted ps reversely: " + p);
+        
+        Arrays.sort(ps, Person.BY_LASTNAME.thenComparingInt(Person::getId));
+        for (Person p : ps) System.out.println("sorted ps BY LASTNAME,ID : " + p);
+
+        Arrays.sort(ps,Comparator.comparing(Person::getFirstname));
+        for (Person p : ps) System.out.println("sorted ps BY FIRSTNAME: " + p);
+        
+        ps[1] = null;
+        Arrays.sort(ps,Comparator.nullsFirst(Comparator.naturalOrder()));
+        for (Person p : ps) System.out.println("sorted ps (with null): " + p);
+
+        Comparator<Person> ln = (px, py) -> px.getLastname().compareTo(py.getLastname());
+        Comparator<Person> fn = (px, py) -> px.getFirstname().compareTo(py.getFirstname());
+        Arrays.sort(ps, Comparator.nullsLast(ln.reversed()));
+        for (Person p : ps) System.out.println("sorted ps by LASTNAME: " + p);
+        
+        Arrays.sort(ps, Comparator.nullsLast(ln.thenComparing(fn)));
+        for (Person p : ps) System.out.println("sorted ps by LASTNAME,FIRSTNAME: " + p);
+    }
+    static void testGroup() {
+        var p0 = new Person("Kavin","Smith");
+        var p1 = new Person("Albert","Dole");
+        var p2 = new Person("Kavin","Johnson");
+        var p3 = new Person("Albert","Johnson");
+        var p4 = new Person("Steve","Smith");
+        var g = new Group<Person>();
+        g.add(p4); g.add(p2); g.add(p3); g.add(p0); g.add(p1);
+        System.out.println("Group: " + g);
+        System.out.println("Sorted G: " + g.sort());
+        System.out.println("Sorted G by firstname: " + g.sort(Person.BY_FIRSTNAME));
+        Predicate<Person> pk = p -> p.getLastname().contains("o");
+        System.out.println("Find Person with Lastname contains no o: " + g.find(pk.negate()));
+    }
+    
+}
+
+-----------------------------------
