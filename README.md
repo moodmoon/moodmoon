@@ -1,5 +1,5 @@
 <h1 align="center">Hello, I'm Pearmai Wannasiri.</h1>
-<h3 align="center">A passionate frontend developer from Thailand.</h3>
+<h3 align="center">A passionate frontend and ux/ui from Thailand.</h3>
 
 <p align="left"> <img src="https://komarev.com/ghpvc/?username=moodmoon&label=Profile%20views&color=0e75b6&style=flat" alt="moodmoon" /> </p>
 
