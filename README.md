@@ -1,10 +1,10 @@
 <h1 align="center">Hello ♡, I'm Pearmai Wannasiri.</h1>
-<h3 align="center">A passionate frontend and ux/ui from Thailand.</h3>
+<h3 align="center">A passionate ux/ui designer from Thailand.</h3>
 <h3 align="center">I'm a sophomore student at SIT KMUTT.</h3>
 
 <p align="left"> <img src="https://komarev.com/ghpvc/?username=moodmoon&label=Profile%20views&color=0e75b6&style=flat" alt="moodmoon" /> </p>
 
-- 📩! How to reach me **pearmaiiiiimap@gmail.com**
+- 📩! How to reach me **pearmaiwannasiri@outlook.com**
 
 <h3 align="left">Connect with me:</h3>
 <p align="left">
