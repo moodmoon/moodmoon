@@ -1,6 +1,6 @@
 <h1 align="center">Hello ♡, I'm Pearmai Wannasiri.</h1>
 <h3 align="center">A passionate ux/ui designer from Thailand.</h3>
-<h3 align="center">I'm a Junior student at SIT KMUTT.</h3>
+<h3 align="center">I'm a Senior student at SIT KMUTT.</h3>
 
 <p align="left"> <img src="https://komarev.com/ghpvc/?username=moodmoon&label=Profile%20views&color=0e75b6&style=flat" alt="moodmoon" /> </p>
 
